@@ -909,6 +909,140 @@ Work autonomously between checkpoints. Make all technical decisions independentl
 
 ---
 
+## 💬 Communication Strategy with Claude Code
+
+### GitHub Issue-Based Development
+
+This project uses GitHub Issues as the primary interface for autonomous feature development. Three key workflows:
+
+#### 1. Feature Requests (Autonomous Implementation)
+
+Use the **Autonomous Feature template** (`.github/ISSUE_TEMPLATE/autonomous_feature.md`):
+
+```markdown
+Implement [FEATURE] with completion criteria:
+- [ ] Criterion 1
+- [ ] Criterion 2
+- [ ] Build successful (0 errors)
+
+CHECKPOINTS:
+1. After [milestone] - confirm approach
+2. After [milestone] - verify functionality
+
+Work autonomously between checkpoints.
+```
+
+**Created Issues:**
+- [#3](https://github.com/Mikecranesync/claudegen-coach/issues/3) - Test Authentication System End-to-End
+- [#4](https://github.com/Mikecranesync/claudegen-coach/issues/4) - Complete Supabase Database Setup
+- [#5](https://github.com/Mikecranesync/claudegen-coach/issues/5) - Remove Development Bypass for Production
+
+#### 2. Progress Tracking
+
+Claude Code uses the **TodoWrite tool** to provide real-time progress updates:
+
+- Tasks marked as `in_progress` when starting
+- Tasks marked as `completed` immediately upon finishing
+- Exactly ONE task in progress at any time
+- Visible progress tracking throughout implementation
+
+#### 3. Commit Strategy
+
+All commits follow this format:
+
+```
+type: Brief description
+
+- Detailed change 1
+- Detailed change 2
+
+Code metrics: +X lines, +Y files
+
+🤖 Generated with Claude Code
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+### Best Practices for Autonomous Work
+
+Based on "Autonomous Claude GitHub Issue Fixes" architectural blueprint:
+
+**1. Issue-Driven Development**
+- Create issues for all major features
+- Use completion criteria + checkpoints
+- Reference issues in commits: "Fixes #3", "Closes #4"
+
+**2. Structured Communication**
+- Clear acceptance criteria (measurable)
+- Strategic checkpoints (architectural decisions)
+- Autonomy between checkpoints (implementation details)
+
+**3. Quality Gates**
+- Build must pass (0 TypeScript errors)
+- Code follows existing patterns
+- Tests defined (even if not automated yet)
+- Documentation updated (README, JUMPSTART)
+
+**4. Continuous Documentation**
+- Update JUMPSTART.md after major features
+- Include commit hashes for navigation
+- Keep "In Progress" section accurate
+- Update project metrics
+
+### Example Autonomous Session
+
+```markdown
+From: GitHub Issue #6 - "Implement Password Reset Flow"
+
+Completion Criteria:
+- [ ] Forgot password link functional
+- [ ] Email sent via Supabase
+- [ ] Reset token validation
+- [ ] New password form with validation
+- [ ] Success confirmation
+- [ ] Build successful
+
+CHECKPOINTS:
+1. After email integration - verify token generation
+2. After UI built - confirm UX flow
+
+Work autonomously between checkpoints.
+```
+
+**Expected Flow:**
+1. Claude creates todo list (6 items)
+2. Marks first todo `in_progress`
+3. Implements email integration
+4. **CHECKPOINT 1:** Shows code, asks for confirmation
+5. User confirms → Claude continues
+6. Marks todos as `completed` one by one
+7. Builds UI components
+8. **CHECKPOINT 2:** Shows working demo, asks for confirmation
+9. User confirms → Claude finishes
+10. Commits with detailed message
+11. Updates JUMPSTART.md
+12. Closes issue #6
+
+### Reference: Autonomous Work Theory
+
+See [Autonomous Work Theory](#🤖-autonomous-work-theory) (lines 752-908) for:
+- 5 autonomous work approaches
+- Comparison matrix
+- Recommended hybrid approach
+- Example prompts
+
+### Quick Reference Card
+
+| Scenario | Approach | Example |
+|----------|----------|---------|
+| Simple bug fix | Direct (no checkpoints) | "Fix validation error on signup form" |
+| New feature (1-2 files) | Task Completion Criteria | "Add loading spinner to login button with criteria: [list]" |
+| Complex feature (3+ files) | Hybrid (Criteria + Checkpoints) | "Implement user profile editing with checkpoints at: 1) UI design, 2) API integration" |
+| Refactoring | Confidence Thresholds | "Refactor auth hook - pause if uncertain" |
+| Testing | Test-Driven | "Add form validation tests - work until all pass" |
+
+---
+
 ## ✅ Latest Updates (November 7, 2025 - 🎉 MVP COMPLETE!)
 
 **Authentication System Implementation (Session: November 7, 2025):**

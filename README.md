@@ -213,6 +213,75 @@ Connect your n8n instance to enable workflow automation:
   - [ ] Session persistence
   - [ ] Progress tracking
 
+## Working with Claude Code
+
+This project leverages **Claude Code** for AI-assisted development. We use a hybrid approach combining **Task Completion Criteria** with **Checkpoint-Based Autonomy** for efficient, high-quality feature implementation.
+
+### Requesting New Features
+
+When creating feature requests, use the [Autonomous Feature template](.github/ISSUE_TEMPLATE/autonomous_feature.md) which includes:
+
+1. **Clear Completion Criteria**: Specific, measurable conditions that define "done"
+2. **Strategic Checkpoints**: Major milestones where Claude pauses for confirmation
+3. **Autonomy Between Checkpoints**: Claude makes all implementation decisions independently
+
+**Example Request Format:**
+```markdown
+Implement user profile editing with these completion criteria:
+✅ Profile form with name, email, bio fields created
+✅ Form validation implemented
+✅ API integration with Supabase for updates
+✅ Success/error notifications displayed
+✅ All TypeScript errors resolved
+✅ Build successful
+
+CHECKPOINTS:
+1. After UI components built - confirm design and UX
+2. After Supabase integration - verify data flow
+
+Work autonomously between checkpoints.
+```
+
+### Autonomous Work Strategy
+
+This project follows a documented autonomous work methodology (see [JUMPSTART.md](JUMPSTART.md#🤖-autonomous-work-theory) lines 752-908):
+
+**5 Approaches Available:**
+1. **Task Completion Criteria** - Define explicit "done" conditions
+2. **Hierarchical Todo System** - Use TodoWrite tool for tracking
+3. **Checkpoint-Based** - Work autonomously between milestones
+4. **Confidence Thresholds** - Claude pauses when uncertain
+5. **Test-Driven Iteration** - Work until tests pass
+
+**Recommended Hybrid:** Completion Criteria + Checkpoints
+
+### Communication Best Practices
+
+When working with Claude Code on this project:
+
+- **Be Specific**: Provide clear acceptance criteria
+- **Use Checkpoints**: For complex features (3+ major steps)
+- **Reference Patterns**: Point to existing code examples
+- **Trust Autonomy**: Claude handles implementation details between checkpoints
+- **Track Progress**: Watch TodoWrite tool updates in real-time
+
+### Development Mode
+
+For testing without authentication:
+
+1. Set `VITE_DEV_MODE=true` in `.env`
+2. Development bypass button will appear on login page
+3. **IMPORTANT:** Set to `false` before production deployment
+
+See [Issue #5](https://github.com/Mikecranesync/claudegen-coach/issues/5) for production cleanup.
+
+### Reference Documentation
+
+- **Project State**: [JUMPSTART.md](JUMPSTART.md) - Cold start guide and current status
+- **Database Setup**: [SUPABASE_SETUP.md](SUPABASE_SETUP.md) - Supabase configuration
+- **Autonomous Work Theory**: [JUMPSTART.md](JUMPSTART.md#🤖-autonomous-work-theory) - Detailed strategies
+- **Active Issues**: [GitHub Issues](https://github.com/Mikecranesync/claudegen-coach/issues) - Current tasks
+
 ## Contributing
 
 1. Fork the repository
