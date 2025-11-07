@@ -14,7 +14,7 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseClasses = 'font-medium rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
+  const baseClasses = 'font-medium rounded-lg transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:saturate-50'
 
   const variantClasses = {
     primary: 'bg-primary-600 hover:bg-primary-700 text-white',

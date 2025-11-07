@@ -37,3 +37,4 @@ firestore-debug.log
 # Telegram bot
 telegram-bot/node_modules
 telegram-bot/dist
+codegen env var.txt

@@ -40,6 +40,15 @@ const IdeaManagement: React.FC = () => {
     }
   }, [currentProject])
 
+  // Check API key on mount
+  useEffect(() => {
+    if (!claudeApiKey && !showResults) {
+      setError('⚠️ Claude API key not configured. Please go to Settings and add your API key before analyzing.')
+    } else if (error?.includes('Claude API key not configured')) {
+      setError(null)
+    }
+  }, [claudeApiKey, showResults])
+
   const handleAnalyze = async () => {
     // Validation
     if (!concept.trim() || !targetUser.trim() || !problem.trim()) {
@@ -192,22 +201,29 @@ const IdeaManagement: React.FC = () => {
               />
             </div>
 
-            <div className="flex gap-3">
-              <Button
-                variant="primary"
-                onClick={handleAnalyze}
-                disabled={isAnalyzing || !concept.trim() || !targetUser.trim() || !problem.trim()}
-              >
-                {isAnalyzing ? 'Analyzing with Claude AI...' : 'Analyze & Refine'}
-              </Button>
-              {currentProject?.stages.stage1 && (
+            <div>
+              <div className="flex gap-3">
                 <Button
-                  variant="secondary"
-                  onClick={() => setShowResults(true)}
-                  disabled={!analysis}
+                  variant="primary"
+                  onClick={handleAnalyze}
+                  disabled={isAnalyzing || !concept.trim() || !targetUser.trim() || !problem.trim()}
                 >
-                  View Previous Analysis
+                  {isAnalyzing ? 'Analyzing with Claude AI...' : 'Analyze & Refine'}
                 </Button>
+                {currentProject?.stages.stage1 && (
+                  <Button
+                    variant="secondary"
+                    onClick={() => setShowResults(true)}
+                    disabled={!analysis}
+                  >
+                    View Previous Analysis
+                  </Button>
+                )}
+              </div>
+              {(!concept.trim() || !targetUser.trim() || !problem.trim()) && (
+                <p className="mt-2 text-sm text-yellow-400">
+                  ℹ️ Please fill in all three fields above to enable the Analyze button
+                </p>
               )}
             </div>
           </>
