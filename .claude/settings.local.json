@@ -13,7 +13,19 @@
       "Bash(git push:*)",
       "Bash(npm uninstall:*)",
       "Bash(git rm:*)",
-      "Bash(.gitignore)"
+      "Bash(.gitignore)",
+      "Bash(git -C \"C:\\Users\\hharp\\codegen\" remote -v)",
+      "Bash(git -C \"C:\\Users\\hharp\\codegen\" log --oneline -10)",
+      "Bash(tree:*)",
+      "Bash(nul)",
+      "Bash(dir /b C:Usershharpcodegensrc)",
+      "Bash(dir:*)",
+      "Bash(if [ -f \"nul\" ])",
+      "Bash(then rm nul)",
+      "Bash(else echo \"nul file not found\")",
+      "Bash(fi)",
+      "Bash(git log:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

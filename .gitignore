@@ -38,3 +38,6 @@ firestore-debug.log
 telegram-bot/node_modules
 telegram-bot/dist
 codegen env var.txt
+
+# Reference documents
+*.pdf
