@@ -7,7 +7,11 @@
       "Bash(npm run build:*)",
       "Bash(xargs sed:*)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(gh:*)",
+      "Bash(git push:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []

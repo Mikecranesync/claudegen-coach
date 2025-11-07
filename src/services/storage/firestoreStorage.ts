@@ -1,5 +1,5 @@
 import type { Project } from '@/types/project'
-import { firestoreService } from '../api/firebase/firestoreService'
+import { supabaseService } from '../api/supabase/supabaseService'
 import { localStorageService } from './localStorage'
 
 class UnifiedStorageService {
@@ -13,24 +13,24 @@ class UnifiedStorageService {
     // Always save to local storage as fallback
     localStorageService.saveProject(project)
 
-    // Also save to Firestore if available
-    if (this.userId && firestoreService.isAvailable()) {
+    // Also save to Supabase if available
+    if (this.userId && supabaseService.isAvailable()) {
       try {
-        await firestoreService.saveProject(this.userId, project)
+        await supabaseService.saveProject(this.userId, project)
       } catch (error) {
-        console.error('Failed to sync to Firestore:', error)
+        console.error('Failed to sync to Supabase:', error)
       }
     }
   }
 
   async getProject(projectId: string): Promise<Project | null> {
-    // Try Firestore first
-    if (firestoreService.isAvailable()) {
+    // Try Supabase first
+    if (supabaseService.isAvailable()) {
       try {
-        const project = await firestoreService.getProject(projectId)
+        const project = await supabaseService.getProject(projectId)
         if (project) return project
       } catch (error) {
-        console.error('Failed to fetch from Firestore:', error)
+        console.error('Failed to fetch from Supabase:', error)
       }
     }
 
@@ -39,13 +39,13 @@ class UnifiedStorageService {
   }
 
   async getAllProjects(): Promise<Project[]> {
-    // Try Firestore first
-    if (this.userId && firestoreService.isAvailable()) {
+    // Try Supabase first
+    if (this.userId && supabaseService.isAvailable()) {
       try {
-        const projects = await firestoreService.getUserProjects(this.userId)
+        const projects = await supabaseService.getUserProjects(this.userId)
         if (projects.length > 0) return projects
       } catch (error) {
-        console.error('Failed to fetch from Firestore:', error)
+        console.error('Failed to fetch from Supabase:', error)
       }
     }
 
@@ -56,11 +56,11 @@ class UnifiedStorageService {
   async deleteProject(projectId: string): Promise<void> {
     localStorageService.deleteProject(projectId)
 
-    if (firestoreService.isAvailable()) {
+    if (supabaseService.isAvailable()) {
       try {
-        await firestoreService.deleteProject(projectId)
+        await supabaseService.deleteProject(projectId)
       } catch (error) {
-        console.error('Failed to delete from Firestore:', error)
+        console.error('Failed to delete from Supabase:', error)
       }
     }
   }

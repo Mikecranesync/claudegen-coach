@@ -2,9 +2,9 @@
 
 **Last Updated**: November 6, 2025
 **Version**: 1.0.0 (MVP - Foundation Complete)
-**Git Commit**: cb282b9 - "Add JUMPSTART.md - Complete project state documentation"
+**Git Commit**: (Pending) - "Replace Firebase with Supabase"
 **GitHub**: https://github.com/Mikecranesync/claudegen-coach
-**Status**: ✅ Foundation Complete | ✅ GitHub Configured | 🚧 Ready for Supabase Migration
+**Status**: ✅ Foundation Complete | ✅ GitHub Configured | ✅ Supabase Integrated
 
 ---
 
@@ -83,24 +83,30 @@ git log --oneline -5
   - [x] Pushed to GitHub remote
   - [x] Repository URL: https://github.com/Mikecranesync/claudegen-coach
 
+- [x] **Supabase Migration** (Phase 5 - COMPLETE)
+  - [x] Created SUPABASE_SETUP.md with step-by-step instructions
+  - [x] Installed @supabase/supabase-js (v2.80.0)
+  - [x] Removed Firebase dependencies (74 packages removed)
+  - [x] Created supabase.config.ts (replaces firebase.config.ts)
+  - [x] Created supabaseService.ts (replaces firestoreService.ts)
+  - [x] Updated storage service to use Supabase
+  - [x] Updated environment variable types
+  - [x] Updated .env.example with Supabase variables
+  - [x] Build successful (0 errors)
+
 ### 🚧 In Progress
 
-- [ ] **Supabase Migration** (Current Phase)
-  - [ ] Create Supabase project
-  - [ ] Install Supabase client
-  - [ ] Replace Firebase configuration
-  - [ ] Update authentication
-  - [ ] Migrate Firestore to PostgreSQL
+- [ ] **Stage Implementation** (Current Phase)
+  - [ ] Stage 1: Idea Management
+  - [ ] Stage 2: Concept Validation
+  - [ ] Stage 3: Specification
+  - [ ] Stage 4: CLI Configuration
+  - [ ] Stage 5: Code Generation
+  - [ ] Stage 6: Automation
 
 ### 📅 Next Up (Prioritized)
 
-1. **Phase 5: Supabase Migration** (User Requested - CURRENT PRIORITY)
-   - Replace Firebase with Supabase
-   - Update authentication
-   - Migrate Firestore → Supabase PostgreSQL
-   - Update environment variables
-
-3. **Phase 6: Stage Implementation** (Phased Development)
+1. **Phase 6: Stage Implementation** (Phased Development - CURRENT PRIORITY)
    - Stage 1: Idea Management (forms + Claude integration)
    - Stage 2: Concept Validation (PoC generator)
    - Stage 3: Specification Builder (MoSCoW method)
@@ -108,10 +114,10 @@ git log --oneline -5
    - Stage 5: Code Generation (Monaco editor + preview)
    - Stage 6: Automation (n8n workflows + README gen)
 
-4. **Phase 7: Telegram Bot**
+2. **Phase 7: Telegram Bot**
    - Initialize telegram-bot project
    - Implement conversational handlers
-   - Connect to same backend
+   - Connect to same Supabase backend
 
 ---
 
@@ -124,7 +130,7 @@ Frontend:  React 18 + TypeScript + Vite
 Styling:   Tailwind CSS (dark mode)
 State:     Zustand (4 stores)
 Routing:   React Router v6
-Backend:   Firebase → Supabase (migration planned)
+Backend:   Supabase (PostgreSQL + Auth)
 APIs:      Claude AI API, n8n REST API
 Bot:       Telegram (planned)
 ```
@@ -150,7 +156,7 @@ claudegen-coach/
 │   │   ├── api/
 │   │   │   ├── claude/      # Claude API client + prompt builder
 │   │   │   ├── n8n/         # n8n REST API client
-│   │   │   └── firebase/    # Firestore service
+│   │   │   └── supabase/    # Supabase service
 │   │   └── storage/         # Local + cloud storage
 │   ├── store/               # Zustand stores
 │   │   ├── authStore.ts
@@ -170,7 +176,7 @@ claudegen-coach/
 │   │   ├── logger.ts
 │   │   └── zipGenerator.ts
 │   ├── config/              # Configuration
-│   │   ├── firebase.config.ts
+│   │   ├── supabase.config.ts
 │   │   ├── stages.config.ts
 │   │   └── prompts.config.ts
 │   ├── hooks/               # Custom hooks (planned)
@@ -226,16 +232,15 @@ claudegen-coach/
 Create `.env` file (from `.env.example`):
 
 ```bash
-# Claude API
-VITE_CLAUDE_API_KEY=sk-ant-...              # Your Claude API key
+# Supabase (Required for cloud sync)
+VITE_SUPABASE_URL=https://xxx.supabase.co   # Your Supabase project URL
+VITE_SUPABASE_ANON_KEY=eyJ...               # Your Supabase anon key
 
-# n8n (Optional)
+# n8n (Optional for workflow automation)
 VITE_N8N_BASE_URL=https://your-n8n.com      # Your n8n instance
 VITE_N8N_API_KEY=your-n8n-key               # n8n API key
 
-# Supabase (After Migration)
-VITE_SUPABASE_URL=https://xxx.supabase.co   # Supabase project URL
-VITE_SUPABASE_ANON_KEY=eyJ...               # Supabase anon key
+# App Configuration
 VITE_APP_ID=claudegen-coach-default         # App identifier
 ```
 
@@ -272,7 +277,7 @@ npm run lint
   "react-dom": "^18.2.0",
   "react-router-dom": "^6.20.0",
   "zustand": "^4.4.7",
-  "firebase": "^10.7.1",
+  "@supabase/supabase-js": "^2.80.0",
   "axios": "^1.6.2",
   "@monaco-editor/react": "^4.6.0",
   "archiver": "^6.0.1",
@@ -294,7 +299,7 @@ npm run lint
 }
 ```
 
-**Total**: 416 packages installed
+**Total**: 352 packages installed (reduced from 426 after removing Firebase)
 
 ---
 
@@ -327,13 +332,13 @@ npm run lint
 - `src/services/api/claude/promptBuilder.ts` - RAG prompt system
 - `src/services/api/n8n/n8nClient.ts` - n8n REST API client
 - `src/services/api/n8n/workflowService.ts` - Workflow generators
-- `src/services/api/firebase/firestoreService.ts` - Firestore CRUD
+- `src/services/api/supabase/supabaseService.ts` - Supabase CRUD + Auth
 
 ### Important Configs
 
 - `src/config/prompts.config.ts` - RAG library with 6-stage prompts
 - `src/config/stages.config.ts` - Stage validation gates
-- `src/config/firebase.config.ts` - Firebase initialization
+- `src/config/supabase.config.ts` - Supabase initialization
 
 ---
 
@@ -450,15 +455,19 @@ git remote -v
 # origin	https://github.com/Mikecranesync/claudegen-coach.git
 ```
 
-### 🎯 2. Start Supabase Migration (CURRENT PRIORITY)
+### ✅ 2. Supabase Migration (COMPLETED)
 
-**Steps**:
-1. Create Supabase project at https://supabase.com
-2. Install Supabase client: `npm install @supabase/supabase-js`
-3. Update `firebase.config.ts` → `supabase.config.ts`
-4. Replace Firebase Auth with Supabase Auth
-5. Update Firestore service → Supabase PostgreSQL queries
-6. Update environment variables
+**What was done**:
+1. ✅ Created SUPABASE_SETUP.md with comprehensive setup instructions
+2. ✅ Installed @supabase/supabase-js (v2.80.0)
+3. ✅ Removed Firebase dependencies (74 packages removed)
+4. ✅ Created supabase.config.ts with database types
+5. ✅ Created supabaseService.ts with CRUD + Auth methods
+6. ✅ Updated storage service to use Supabase
+7. ✅ Updated environment variables (.env.example)
+8. ✅ Build successful (0 errors)
+
+**Next step**: Follow SUPABASE_SETUP.md to create your Supabase project and add credentials to .env
 
 ### 3. Implement Stage 1 (After Supabase)
 

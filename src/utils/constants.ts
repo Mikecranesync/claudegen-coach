@@ -2,8 +2,8 @@ export const APP_NAME = 'ClaudeGen Coach'
 export const APP_VERSION = '1.0.0'
 export const APP_DESCRIPTION = 'AI-Driven Product Development and Automation Assistant'
 
-// Firebase
-export const FIREBASE_APP_ID = import.meta.env.VITE_APP_ID || 'claudegen-coach-default'
+// Supabase
+export const SUPABASE_APP_ID = import.meta.env.VITE_APP_ID || 'claudegen-coach-default'
 
 // API Endpoints
 export const N8N_BASE_URL = import.meta.env.VITE_N8N_BASE_URL || ''

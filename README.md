@@ -21,7 +21,7 @@ ClaudeGen Coach is a hybrid desktop/web and conversational application that serv
 - **Styling**: Tailwind CSS with custom dark theme
 - **State Management**: Zustand
 - **Routing**: React Router v6
-- **Backend/Database**: Firebase/Firestore (planned migration to Supabase)
+- **Backend/Database**: Supabase (PostgreSQL + Auth)
 - **APIs**: Claude AI API, n8n REST API
 
 ## Project Structure
@@ -45,7 +45,7 @@ claudegen-coach/
 │   │   ├── api/
 │   │   │   ├── claude/    # Claude CLI client
 │   │   │   ├── n8n/       # n8n REST API client
-│   │   │   └── firebase/  # Firebase/Firestore
+│   │   │   └── supabase/  # Supabase service
 │   │   └── storage/       # Local/Cloud storage
 │   ├── store/             # Zustand state stores
 │   ├── types/             # TypeScript type definitions
@@ -81,16 +81,21 @@ npm install
 cp .env.example .env
 ```
 
-Edit `.env` and add your API keys:
-```
-VITE_FIREBASE_API_KEY=your_firebase_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
+Edit `.env` and add your credentials:
+```bash
+# Supabase (Required for cloud sync - see SUPABASE_SETUP.md)
+VITE_SUPABASE_URL=https://xxxxxxxxxxxxx.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+# n8n (Optional for workflow automation)
 VITE_N8N_BASE_URL=https://your-n8n-instance.com
+VITE_N8N_API_KEY=your-n8n-api-key
+
+# App Configuration
+VITE_APP_ID=claudegen-coach-default
 ```
+
+**See `SUPABASE_SETUP.md` for detailed setup instructions.**
 
 4. Start the development server:
 ```bash
@@ -174,7 +179,7 @@ Connect your n8n instance to enable workflow automation:
 - [x] Phase 2: Service Layer
   - [x] Claude API client
   - [x] n8n REST API client
-  - [x] Firebase/Firestore integration
+  - [x] Supabase integration (PostgreSQL + Auth)
   - [x] Local storage fallback
   - [x] Prompt building system
 
@@ -191,9 +196,17 @@ Connect your n8n instance to enable workflow automation:
   - [ ] Stage 5: Code Editor & QA
   - [ ] Stage 6: Automation
 
-- [ ] Phase 5: Advanced Features
-  - [ ] Firebase → Supabase migration
-  - [ ] GitHub integration
+- [x] Phase 4: GitHub Integration
+  - [x] Git repository initialized
+  - [x] Pushed to GitHub
+  - [x] JUMPSTART.md documentation
+
+- [x] Phase 5: Supabase Migration
+  - [x] Replaced Firebase with Supabase
+  - [x] Created SUPABASE_SETUP.md guide
+  - [x] Database types and service
+
+- [ ] Phase 6: Advanced Features
   - [ ] Telegram bot
   - [ ] Monaco code editor integration
   - [ ] Real ZIP generation
