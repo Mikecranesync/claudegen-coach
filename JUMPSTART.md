@@ -1043,6 +1043,88 @@ See [Autonomous Work Theory](#🤖-autonomous-work-theory) (lines 752-908) for:
 
 ---
 
+## 🤖 Autonomous Bot Architecture
+
+### Overview
+
+In addition to the interactive Claude Code CLI workflow, ClaudeGen Coach includes an **autonomous GitHub bot** (currently in development) that responds to issue comments and creates Pull Requests automatically.
+
+**Architecture**: Serverless webhook-driven agent (see `Autonomous Claude GitHub Issue Fixes.pdf`)
+
+### How It Works
+
+1. **Trigger**: User comments `@claude fix` on any GitHub issue
+2. **Webhook**: GitHub sends `issue_comment` event to Cloudflare Worker
+3. **Validation**: Worker validates webhook signature, checks for activation command
+4. **Context**: Fetches relevant files from repository + CLAUDE.md standards
+5. **Generation**: Calls Claude API with structured JSON output schema
+6. **PR Creation**: Uses Git Data API to create branch, commit, and Pull Request
+7. **Notification**: Posts success/failure comment back to issue
+
+### Bot Capabilities
+
+- Autonomous bug fixes
+- Code refactoring
+- Feature implementation (small, well-scoped)
+- Test generation
+- Documentation updates
+
+### Activation Commands
+
+- `@claude fix` - General fix command
+- `@claude fix <file>` - Fix specific file
+- `/fix-issue` - Slash command alternative
+
+### CLAUDE.md File
+
+**Location**: `C:\Users\hharp\codegen\CLAUDE.md`
+
+**Purpose**: Project-specific coding standards automatically prepended to ALL bot prompts
+
+**Contents**:
+- TypeScript style guidelines (strict mode, path aliases)
+- React patterns (functional components, hooks)
+- Zustand state conventions
+- Tailwind CSS utility-first approach
+- Naming conventions (PascalCase for components, camelCase for functions)
+- Error handling patterns
+- Code quality checklist
+
+### Deployment (Planned)
+
+**Platform**: Cloudflare Workers (free tier: 3M requests/month)
+
+**Infrastructure**:
+- GitHub App: `claudegen-coach-bot` (to be registered)
+- Webhook endpoint: TBD (Cloudflare Workers)
+- Secrets: GitHub App private key, Anthropic API key, webhook secret
+
+**Monitoring**:
+- Cloudflare Workers dashboard: Invocation count, errors, latency
+- Cost alerts: 80% threshold for free tier
+- Comprehensive logging: All API calls, SHAs, state transitions
+
+### Limitations
+
+- Works best for focused, single-file changes
+- Complex architectural changes require human review
+- Context window limited (may need RAG for large repos)
+- Free tier quota: ~3M requests/month (sufficient for most projects)
+
+### Documentation
+
+- **Implementation plan**: [GitHub Issue #7](https://github.com/Mikecranesync/claudegen-coach/issues/7)
+- **Architecture blueprint**: `Autonomous Claude GitHub Issue Fixes.pdf`
+- **Coding standards**: [CLAUDE.md](./CLAUDE.md)
+- **Future docs**: `docs/BOT_ARCHITECTURE.md` (will be created during implementation)
+
+### Current Status
+
+**Phase 1**: Foundation ✅ (CLAUDE.md created, GitHub issue created)
+**Phase 2-6**: Planned (see Issue #7 for full roadmap)
+
+---
+
 ## ✅ Latest Updates (November 7, 2025 - 🎉 MVP COMPLETE!)
 
 **Testing Infrastructure & Supabase Integration (Session: November 7, 2025):**

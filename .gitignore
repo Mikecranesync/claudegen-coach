@@ -39,5 +39,15 @@ telegram-bot/node_modules
 telegram-bot/dist
 codegen env var.txt
 
+# Cloudflare Workers (Autonomous Bot)
+cloudflare-worker/node_modules
+cloudflare-worker/dist
+cloudflare-worker/.wrangler
+.wrangler
+wrangler.toml
+.env.worker
+*.pem
+github-app-private-key.pem
+
 # Reference documents
 *.pdf
