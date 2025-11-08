@@ -1,0 +1,26 @@
+{
+  "name": "claudegen-bot-worker",
+  "version": "1.0.0",
+  "description": "Autonomous GitHub Issue Fix Bot - Cloudflare Worker",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler publish",
+    "tail": "wrangler tail"
+  },
+  "keywords": [
+    "cloudflare-workers",
+    "github",
+    "webhook",
+    "ai",
+    "claude",
+    "automation"
+  ],
+  "author": "ClaudeGen Coach",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  },
+  "dependencies": {}
+}
