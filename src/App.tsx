@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from '@hooks/useAuth'
+import { useSettingsStore } from '@store/settingsStore'
 import { PrivateRoute } from '@components/common/PrivateRoute/PrivateRoute'
 import MainLayout from '@components/layout/MainLayout/MainLayout'
 import Dashboard from '@pages/Dashboard/Dashboard'
@@ -15,8 +16,9 @@ import { Login } from '@pages/Auth/Login'
 import { Signup } from '@pages/Auth/Signup'
 
 function App() {
-  const { checkSession, isLoading } = useAuth()
+  const { checkSession, isLoading, user } = useAuth()
   const [isInitialized, setIsInitialized] = useState(false)
+  const { setClaudeApiKey, setN8nApiKey, setN8nBaseUrl, setNotifications, setSaveProgress } = useSettingsStore()
 
   // Check for existing session on mount
   useEffect(() => {
@@ -27,6 +29,22 @@ function App() {
 
     initAuth()
   }, [checkSession])
+
+  // Sync user settings from authStore to settingsStore after login
+  useEffect(() => {
+    if (user?.settings) {
+      // Get environment variable as fallback
+      const envClaudeKey = import.meta.env.VITE_CLAUDE_API_KEY
+
+      // Sync settings from user to settings store
+      // Priority: user settings > env variable
+      setClaudeApiKey(user.settings.claudeApiKey || envClaudeKey || null)
+      setN8nApiKey(user.settings.n8nApiKey || null)
+      setN8nBaseUrl(user.settings.n8nBaseUrl || null)
+      setNotifications(user.settings.notifications ?? true)
+      setSaveProgress(user.settings.saveProgress ?? true)
+    }
+  }, [user, setClaudeApiKey, setN8nApiKey, setN8nBaseUrl, setNotifications, setSaveProgress])
 
   // Show loading screen while checking authentication
   if (!isInitialized || isLoading) {

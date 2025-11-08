@@ -148,17 +148,19 @@ export const Login: React.FC = () => {
           </div>
 
           {/* Skip Auth (Development Only) */}
-          <div className="mt-4 pt-4 border-t border-dark-border">
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              className="w-full"
-              onClick={() => navigate('/dashboard')}
-            >
-              Continue without login (Development)
-            </Button>
-          </div>
+          {import.meta.env.DEV && (
+            <div className="mt-4 pt-4 border-t border-dark-border">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="w-full"
+                onClick={() => navigate('/dashboard')}
+              >
+                Continue without login (Development)
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Footer */}

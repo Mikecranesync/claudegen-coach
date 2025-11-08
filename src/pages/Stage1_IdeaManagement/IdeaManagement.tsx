@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Input } from '@components/common/Input/Input'
 import { Button } from '@components/common/Button/Button'
+import { useAuth } from '@hooks/useAuth'
 import { useProjectStore } from '@store/projectStore'
 import { useStageStore } from '@store/stageStore'
 import { useSettingsStore } from '@store/settingsStore'
@@ -11,6 +12,7 @@ import type { Stage1Data } from '@/types/project'
 
 const IdeaManagement: React.FC = () => {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const { currentProject, updateStageData, addProject } = useProjectStore()
   const { completeStage } = useStageStore()
   const { claudeApiKey } = useSettingsStore()
@@ -101,7 +103,7 @@ const IdeaManagement: React.FC = () => {
       if (!currentProject) {
         const newProject = {
           id: `project-${Date.now()}`,
-          userId: 'default-user',
+          userId: user?.id || 'anonymous',
           name: concept.trim().substring(0, 50),
           description: problem.trim(),
           createdAt: new Date(),
