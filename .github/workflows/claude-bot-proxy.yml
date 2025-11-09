@@ -1,0 +1,107 @@
+name: Claude Bot Webhook Proxy
+
+# Workaround for GitHub App webhook subscription issues
+# This workflow acts as a proxy: listens for issue comments and forwards to Cloudflare Worker
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  forward-to-bot:
+    runs-on: ubuntu-latest
+    # Only run if comment contains activation command
+    if: contains(github.event.comment.body, '@claude fix') || contains(github.event.comment.body, '/fix-issue')
+
+    steps:
+      - name: Check activation command
+        id: check
+        run: |
+          echo "Comment contains activation command - forwarding to bot"
+          echo "Issue: #${{ github.event.issue.number }}"
+          echo "Author: ${{ github.event.comment.user.login }}"
+
+      - name: Forward to Cloudflare Worker
+        env:
+          WEBHOOK_URL: ${{ secrets.CLAUDE_BOT_WEBHOOK_URL }}
+          WEBHOOK_SECRET: ${{ secrets.CLAUDE_BOT_WEBHOOK_SECRET }}
+        run: |
+          # Escape special characters in JSON strings
+          ISSUE_TITLE=$(echo '${{ github.event.issue.title }}' | jq -Rs .)
+          ISSUE_BODY=$(echo '${{ github.event.issue.body }}' | jq -Rs .)
+          COMMENT_BODY=$(echo '${{ github.event.comment.body }}' | jq -Rs .)
+
+          # Create GitHub-compatible webhook payload
+          PAYLOAD=$(cat <<EOF
+          {
+            "action": "${{ github.event.action }}",
+            "issue": {
+              "number": ${{ github.event.issue.number }},
+              "title": $ISSUE_TITLE,
+              "body": $ISSUE_BODY,
+              "html_url": "${{ github.event.issue.html_url }}"
+            },
+            "comment": {
+              "id": ${{ github.event.comment.id }},
+              "body": $COMMENT_BODY,
+              "user": {
+                "login": "${{ github.event.comment.user.login }}"
+              },
+              "html_url": "${{ github.event.comment.html_url }}",
+              "created_at": "${{ github.event.comment.created_at }}"
+            },
+            "repository": {
+              "name": "${{ github.event.repository.name }}",
+              "full_name": "${{ github.event.repository.full_name }}",
+              "owner": {
+                "login": "${{ github.event.repository.owner.login }}"
+              }
+            }
+          }
+          EOF
+          )
+
+          echo "Payload created:"
+          echo "$PAYLOAD" | jq .
+
+          # Calculate HMAC-SHA256 signature (same as GitHub App webhooks)
+          SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | sed 's/^.*= //')
+
+          echo "Sending to webhook: $WEBHOOK_URL"
+          echo "Signature: sha256=$SIGNATURE"
+
+          # Send POST request with GitHub-style headers
+          RESPONSE=$(curl -X POST "$WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -H "X-GitHub-Event: issue_comment" \
+            -H "X-GitHub-Delivery: actions-${{ github.run_id }}-${{ github.run_number }}" \
+            -H "X-Hub-Signature-256: sha256=$SIGNATURE" \
+            -d "$PAYLOAD" \
+            -w "\nHTTP_CODE:%{http_code}" \
+            -s)
+
+          HTTP_CODE=$(echo "$RESPONSE" | grep "HTTP_CODE" | cut -d: -f2)
+          BODY=$(echo "$RESPONSE" | grep -v "HTTP_CODE")
+
+          echo "Response code: $HTTP_CODE"
+          echo "Response body: $BODY"
+
+          # Check if successful
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ Successfully forwarded to Claude Bot"
+          else
+            echo "❌ Failed to forward to Claude Bot (HTTP $HTTP_CODE)"
+            exit 1
+          fi
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Claude Bot Proxy Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Issue**: #${{ github.event.issue.number }} - ${{ github.event.issue.title }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Comment Author**: @${{ github.event.comment.user.login }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Webhook URL**: ${{ secrets.CLAUDE_BOT_WEBHOOK_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "View Cloudflare Worker logs: \`wrangler tail\`" >> $GITHUB_STEP_SUMMARY
