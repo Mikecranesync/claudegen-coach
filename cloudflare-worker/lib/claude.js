@@ -12,9 +12,9 @@ import { buildSystemPrompt, buildUserPrompt, buildRetryPrompt } from './prompts.
  * Falls back to next model if current one returns 404
  */
 const CLAUDE_MODELS = [
-  'claude-3-5-sonnet-20241022',  // Sonnet 3.5 (Oct 2024) - Latest
-  'claude-3-5-sonnet-20240620',  // Sonnet 3.5 (Jun 2024) - Stable
-  'claude-3-7-sonnet-20250219',  // Sonnet 3.7 (Feb 2025) - Fallback (deprecated)
+  'claude-sonnet-4-5-20250929',  // Sonnet 4.5 (Sep 2025) - Latest, most capable
+  'claude-3-opus-20240229',      // Opus 3 (Feb 2024) - Stable, high quality
+  'claude-3-haiku-20240307',     // Haiku 3 (Mar 2024) - Fast, lightweight fallback
 ];
 
 /**
