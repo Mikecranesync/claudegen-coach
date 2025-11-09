@@ -9,6 +9,123 @@ This guide provides comprehensive testing procedures for ClaudeGen Coach, focusi
 
 ---
 
+## Automated Testing
+
+### Overview
+
+ClaudeGen Coach now has comprehensive automated testing infrastructure using **Vitest**. Automated tests run on every commit and PR, ensuring code quality and preventing regressions.
+
+**Test Status**:
+- ✅ **Cloudflare Worker**: 68 unit tests passing (Phase 1 complete)
+- 🔄 **React App**: Infrastructure configured, tests coming in Phase 4+
+- ✅ **CI/CD**: GitHub Actions configured, auto-runs on every PR
+- 📊 **Coverage**: Target 80%+ for all critical paths
+
+### Quick Start
+
+**Run all tests:**
+```bash
+npm test                # Run all tests once
+npm run test:watch      # Watch mode (auto-rerun on changes)
+npm run test:coverage   # Generate coverage report
+npm run test:ui         # Visual test interface
+```
+
+**Run Worker tests only:**
+```bash
+cd cloudflare-worker
+npm test                # Run Worker tests
+```
+
+**Run tests before committing:**
+```bash
+npm test && npm run build   # Verify tests pass and code compiles
+```
+
+### Test Types
+
+#### 1. Unit Tests (✅ Active)
+- **Purpose**: Test individual functions and modules in isolation
+- **Framework**: Vitest
+- **Location**:
+  - Worker: `cloudflare-worker/test/unit/*.test.js`
+  - App: `src/test/unit/*.test.ts` (coming Phase 4+)
+- **Coverage**: 68 tests for Worker (auth, GitHub API, Claude API, prompts, git operations)
+- **Run time**: < 5 seconds
+
+**Example:**
+```bash
+npm test auth.test.js   # Run specific test file
+```
+
+#### 2. Integration Tests (🔄 Phase 2+)
+- **Purpose**: Test multiple modules working together
+- **Framework**: Vitest with mocks
+- **Location**: `cloudflare-worker/test/integration/`
+- **Status**: Planned for Phase 2 (end-to-end webhook flows)
+
+#### 3. Component Tests (🔄 Phase 4+)
+- **Purpose**: Test React components with user interactions
+- **Framework**: React Testing Library + Vitest
+- **Location**: `src/test/components/*.test.tsx`
+- **Status**: Infrastructure configured, tests coming Phase 4+
+
+#### 4. E2E Tests (🔄 Phase 7)
+- **Purpose**: Test complete user workflows in browser
+- **Framework**: Playwright
+- **Status**: Planned for Phase 7
+
+### Test Results in CI/CD
+
+**GitHub Actions automatically runs tests on every PR:**
+- ✅ All tests must pass before merge
+- 📊 Coverage report posted as PR comment
+- ❌ Failing tests block merge
+
+**View test results:**
+1. Go to PR on GitHub
+2. Check "Checks" tab
+3. See test results and coverage report
+
+### Writing New Tests
+
+**When to write tests:**
+- ✅ All new features (before or immediately after implementation)
+- ✅ All bug fixes (write failing test first, then fix)
+- ✅ All utility functions and helpers
+- ✅ All API integrations (use mocks)
+
+**See [CLAUDE.md](./CLAUDE.md) for detailed testing standards and examples.**
+
+### Test Documentation
+
+**Detailed testing documentation:**
+- **Worker-specific tests**: [`cloudflare-worker/README.md`](./cloudflare-worker/README.md) - Test structure, fixtures, examples
+- **Testing standards**: [`CLAUDE.md`](./CLAUDE.md) - When to test, test patterns, coverage requirements
+- **Manual testing**: Continue reading this guide below for manual test procedures
+
+### Automated vs Manual Testing
+
+**Use automated tests for:**
+- ✅ Function/module logic (unit tests)
+- ✅ API integrations (with mocks)
+- ✅ Data transformations
+- ✅ Error handling
+- ✅ Edge cases
+- ✅ Regression prevention
+
+**Use manual testing for:**
+- 🔍 User experience flows
+- 🔍 Visual design verification
+- 🔍 Cross-browser compatibility
+- 🔍 Performance under load
+- 🔍 Real-world integration scenarios
+- 🔍 Accessibility with screen readers
+
+**Best practice**: Write automated tests for logic, use manual testing for UX validation.
+
+---
+
 ## Prerequisites
 
 Before testing, ensure the following are configured:

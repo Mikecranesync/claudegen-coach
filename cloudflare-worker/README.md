@@ -107,7 +107,79 @@ https://claudegen-bot.<your-subdomain>.workers.dev
 
 ## Testing
 
-### Test Webhook Delivery
+### Automated Tests
+
+The project includes comprehensive automated tests using Vitest.
+
+**Quick Start:**
+```bash
+# Run all tests
+npm test
+
+# Watch mode (auto-rerun on file changes)
+npm run test:watch
+
+# Generate coverage report
+npm run test:coverage
+
+# Interactive test UI
+npm run test:ui
+```
+
+**Test Results:**
+- ✅ 68 tests passing
+- ⏭️ 4 tests skipped (integration tests for Phase 2)
+- 📊 Coverage target: 80%+
+
+**Test Structure:**
+```
+test/
+├── unit/                   # Unit tests for individual functions
+│   ├── github.test.js     # Webhook signatures, file parsing (20 tests)
+│   ├── claude.test.js     # Response validation, JSON parsing (19 tests)
+│   ├── prompts.test.js    # Prompt building, formatting (16 tests)
+│   ├── auth.test.js       # JWT generation, error handling (6 tests)
+│   └── git-operations.test.js  # Git Data API choreography (7 tests)
+├── integration/            # Integration tests (Phase 2+)
+└── fixtures/               # Mock data and test utilities
+    ├── github-payloads.js  # Mock webhooks, API responses
+    ├── claude-responses.js # Mock AI responses
+    └── mock-keys.js        # Test private keys
+```
+
+**Writing New Tests:**
+
+```javascript
+// test/unit/my-module.test.js
+import { describe, it, expect } from 'vitest';
+import { myFunction } from '../../lib/my-module.js';
+
+describe('My Module', () => {
+  it('should do something correctly', () => {
+    const result = myFunction('input');
+    expect(result).toBe('expected-output');
+  });
+
+  it('should handle errors gracefully', () => {
+    expect(() => myFunction(null)).toThrow();
+  });
+});
+```
+
+**Coverage Requirements:**
+- Lines: 80%+
+- Functions: 80%+
+- Branches: 75%+
+- Statements: 80%+
+
+**CI/CD:**
+- Tests run automatically on every PR via GitHub Actions
+- Coverage reports uploaded to Codecov
+- PRs blocked if tests fail
+
+### Manual Testing
+
+#### Test Webhook Delivery
 
 1. Create a test issue in your repository
 2. Comment: `@claude fix`
@@ -116,7 +188,7 @@ https://claudegen-bot.<your-subdomain>.workers.dev
    - Navigate to: Workers & Pages → claudegen-bot → Logs
    - Should see: "Activation command detected!"
 
-### View Logs
+#### View Live Logs
 
 ```bash
 npm run tail

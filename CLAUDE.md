@@ -297,17 +297,278 @@ const handleAction = async () => {
 
 ---
 
-## 🧪 Testing (Future)
+## 🧪 Testing Standards
 
-### Testing Strategy (Not Yet Implemented)
-- **Unit tests**: Vitest (configured but no tests yet)
-- **Integration tests**: React Testing Library (planned)
-- **E2E tests**: Playwright (planned)
+### Testing Strategy
+- **Unit tests**: Vitest (✅ Cloudflare Worker, 🔄 React App)
+- **Integration tests**: Vitest + mocks (🔄 Planned for Phase 2+)
+- **Component tests**: React Testing Library (🔄 Planned for Phase 4+)
+- **E2E tests**: Playwright (🔄 Planned for Phase 7)
 
-### When Tests Exist
-- **Always** run tests before committing: `npm test`
-- **Always** write tests for new utilities and hooks
-- **Cover** happy path + error cases
+### When to Write Tests
+
+**Always write tests for:**
+- All new features (before or immediately after implementation)
+- All bug fixes (write failing test first, then fix)
+- All utility functions and helpers
+- All API integrations (use mocks)
+- All data transformations and parsing logic
+- All critical business logic
+
+**Test-first approach preferred:**
+1. Write failing test that describes expected behavior
+2. Implement code to make test pass
+3. Refactor with confidence
+
+### Test File Naming
+
+**Convention**: `{filename}.test.js` or `{filename}.test.ts`
+
+```
+src/
+├── lib/
+│   ├── auth.js
+│   └── github.js
+└── test/
+    ├── unit/
+    │   ├── auth.test.js          # Tests for lib/auth.js
+    │   └── github.test.js        # Tests for lib/github.js
+    ├── integration/
+    │   └── webhook-flow.test.js  # End-to-end flow tests
+    └── fixtures/
+        ├── github-payloads.js    # Mock webhook data
+        └── claude-responses.js   # Mock AI responses
+```
+
+### Test Structure
+
+**Use `describe` and `it` blocks for organization:**
+
+```javascript
+import { describe, it, expect } from 'vitest';
+import { validateEmail } from '../../lib/validation.js';
+
+describe('Email Validation', () => {
+  it('should accept valid email addresses', () => {
+    expect(validateEmail('user@example.com')).toBe(true);
+    expect(validateEmail('test.user+tag@domain.co.uk')).toBe(true);
+  });
+
+  it('should reject invalid email addresses', () => {
+    expect(validateEmail('notanemail')).toBe(false);
+    expect(validateEmail('@example.com')).toBe(false);
+    expect(validateEmail('user@')).toBe(false);
+  });
+
+  it('should handle edge cases', () => {
+    expect(validateEmail('')).toBe(false);
+    expect(validateEmail(null)).toBe(false);
+    expect(validateEmail(undefined)).toBe(false);
+  });
+});
+```
+
+**Group related tests together:**
+- One `describe` block per function/module
+- Multiple `it` blocks for different scenarios (happy path, error cases, edge cases)
+
+### Mock Data Best Practices
+
+**Create reusable fixtures in `test/fixtures/`:**
+
+```javascript
+// test/fixtures/github-payloads.js
+export const validIssueCommentPayload = {
+  action: 'created',
+  issue: {
+    number: 11,
+    title: 'Fix authentication bug',
+    body: 'The auth is broken',
+  },
+  comment: {
+    body: '@claude fix cloudflare-worker/lib/auth.js',
+    user: { login: 'username' },
+  },
+  repository: {
+    owner: { login: 'owner' },
+    name: 'repo',
+  },
+};
+
+// Use in tests:
+import { validIssueCommentPayload } from '../fixtures/github-payloads.js';
+```
+
+**Why use fixtures:**
+- Realistic test data (copied from real API responses)
+- Reusable across multiple tests
+- Easy to maintain (update once, fix all tests)
+- Documents expected API shapes
+
+### Coverage Expectations
+
+**Target coverage (run `npm run test:coverage`):**
+- **Lines**: 80%+
+- **Functions**: 80%+
+- **Branches**: 75%+
+- **Statements**: 80%+
+
+**Priority by file type:**
+- **Critical business logic**: 100% coverage (e.g., authentication, payment processing)
+- **Utilities and helpers**: 90%+ coverage
+- **API integrations**: 80%+ coverage (focus on error handling)
+- **UI components**: 70%+ coverage (happy path + error states)
+- **Simple presentational components**: 50%+ coverage (or skip)
+
+**What to skip:**
+- Trivial getters/setters
+- Simple UI components with no logic
+- Third-party library wrappers (test integration, not library)
+
+### Running Tests
+
+**Before every commit:**
+```bash
+npm test                # Run all tests
+npm run test:coverage   # Check coverage
+```
+
+**During development:**
+```bash
+npm run test:watch      # Auto-rerun on file changes
+npm run test:ui         # Visual test interface
+```
+
+**For specific files:**
+```bash
+npm test auth.test.js   # Run single test file
+```
+
+### Example Test Patterns
+
+**Testing async functions:**
+```javascript
+it('should fetch user data successfully', async () => {
+  const userData = await getUserById('123');
+
+  expect(userData).toBeDefined();
+  expect(userData.id).toBe('123');
+  expect(userData.email).toContain('@');
+});
+
+it('should throw error for invalid user ID', async () => {
+  await expect(getUserById('invalid')).rejects.toThrow('User not found');
+});
+```
+
+**Testing error handling:**
+```javascript
+it('should handle network errors gracefully', async () => {
+  // Mock fetch to fail
+  global.fetch = vi.fn(() => Promise.reject(new Error('Network error')));
+
+  const result = await fetchData();
+
+  expect(result.error).toBe('Failed to fetch data');
+  expect(result.data).toBeNull();
+});
+```
+
+**Testing with mocks:**
+```javascript
+import { vi } from 'vitest';
+
+it('should call GitHub API with correct parameters', async () => {
+  const mockOctokit = {
+    rest: {
+      issues: {
+        createComment: vi.fn().mockResolvedValue({ data: { id: 123 } }),
+      },
+    },
+  };
+
+  await addComment(mockOctokit, 'owner', 'repo', 1, 'Test comment');
+
+  expect(mockOctokit.rest.issues.createComment).toHaveBeenCalledWith({
+    owner: 'owner',
+    repo: 'repo',
+    issue_number: 1,
+    body: 'Test comment',
+  });
+});
+```
+
+### CI/CD Integration
+
+**Tests run automatically on every PR via GitHub Actions:**
+- All tests must pass before merge
+- Coverage report posted to PR as comment
+- Failing tests block merge
+
+**Local pre-commit hook (optional):**
+```bash
+# .git/hooks/pre-commit
+npm test || exit 1
+```
+
+### Skipping Tests
+
+**Only skip tests with good reason:**
+```javascript
+// ✅ Good: Complex to mock, deferred to integration tests
+it.skip('should generate valid JWT with PKCS#8 key', async () => {
+  // Requires valid RSA keys - tested in integration tests Phase 2
+});
+
+// ❌ Bad: Just lazy
+it.skip('should validate input', () => {
+  // TODO: Write this test later
+});
+```
+
+**Better approach for deferred tests:**
+```javascript
+// Mark as TODO and throw to remind you
+it.todo('should handle rate limiting correctly');
+```
+
+### Testing Checklist
+
+Before committing code with tests:
+
+- [ ] All new functions have corresponding tests
+- [ ] Tests cover happy path
+- [ ] Tests cover error cases
+- [ ] Tests cover edge cases (null, undefined, empty, boundary values)
+- [ ] Test names clearly describe what they test
+- [ ] Tests are independent (don't rely on other tests)
+- [ ] No hardcoded values (use fixtures or constants)
+- [ ] Mocks reset between tests (`beforeEach` / `afterEach`)
+- [ ] Tests run fast (< 1 second per test)
+- [ ] Coverage meets targets (`npm run test:coverage`)
+- [ ] All tests pass locally (`npm test`)
+
+---
+
+### Cloudflare Worker Testing
+
+**See `cloudflare-worker/README.md` for Worker-specific testing docs**
+
+Current status:
+- ✅ 68 unit tests passing
+- ✅ GitHub Actions CI configured
+- ✅ Coverage reporting setup
+- 🔄 Integration tests planned for Phase 2
+
+### React App Testing
+
+**Status**: Testing infrastructure configured, tests coming in Phase 4+
+
+When writing React tests:
+- Test user interactions, not implementation details
+- Use `@testing-library/react` for component tests
+- Test accessibility (screen readers, keyboard navigation)
+- Mock API calls with `vi.fn()` or MSW (Mock Service Worker)
 
 ---
 
