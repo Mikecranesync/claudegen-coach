@@ -102,10 +102,10 @@ export async function createGitHubClient(token) {
  * @param {Object} octokit - Octokit client instance
  * @param {string} owner - Repository owner
  * @param {string} repo - Repository name
- * @param {string} ref - Git ref (default: main)
+ * @param {string} ref - Git ref (default: master)
  * @returns {Promise<string|null>} - CLAUDE.md content or null if not found
  */
-export async function fetchClaudeMd(octokit, owner, repo, ref = 'main') {
+export async function fetchClaudeMd(octokit, owner, repo, ref = 'master') {
   try {
     console.log(`Fetching CLAUDE.md from ${owner}/${repo}@${ref}`);
 
@@ -122,8 +122,8 @@ export async function fetchClaudeMd(octokit, owner, repo, ref = 'main') {
       return null;
     }
 
-    // Decode Base64 content
-    const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
+    // Decode Base64 content (Cloudflare Workers-compatible)
+    const content = atob(response.data.content);
 
     console.log(`✅ CLAUDE.md fetched successfully (${content.length} chars)`);
     return content;
@@ -203,8 +203,8 @@ export async function fetchFileContent(octokit, owner, repo, path, ref = 'main')
       throw new Error(`${path} is not a file (type: ${response.data.type})`);
     }
 
-    // Decode Base64 content
-    const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
+    // Decode Base64 content (Cloudflare Workers-compatible)
+    const content = atob(response.data.content);
 
     return {
       path,

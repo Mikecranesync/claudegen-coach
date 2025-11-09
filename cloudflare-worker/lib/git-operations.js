@@ -13,10 +13,10 @@
  * @param {Object} octokit - Authenticated Octokit client
  * @param {string} owner - Repository owner
  * @param {string} repo - Repository name
- * @param {string} branch - Branch name (default: 'main')
+ * @param {string} branch - Branch name (default: 'master')
  * @returns {Promise<string>} - Commit SHA
  */
-async function getBaseCommitSHA(octokit, owner, repo, branch = 'main') {
+async function getBaseCommitSHA(octokit, owner, repo, branch = 'master') {
   try {
     console.log(`\n📍 Step 1: Getting base commit SHA from ${branch}...`);
 
@@ -32,10 +32,10 @@ async function getBaseCommitSHA(octokit, owner, repo, branch = 'main') {
     return baseSHA;
 
   } catch (error) {
-    // Try 'master' if 'main' doesn't exist
-    if (branch === 'main' && error.status === 404) {
-      console.log(`⚠️ 'main' branch not found, trying 'master'...`);
-      return getBaseCommitSHA(octokit, owner, repo, 'master');
+    // Try 'main' if 'master' doesn't exist
+    if (branch === 'master' && error.status === 404) {
+      console.log(`⚠️ 'master' branch not found, trying 'main'...`);
+      return getBaseCommitSHA(octokit, owner, repo, 'main');
     }
 
     console.error('❌ Failed to get base commit SHA:', error);
@@ -284,7 +284,7 @@ export async function createPullRequest(octokit, context, codeFixResponse) {
 
   const owner = context.repository.owner;
   const repo = context.repository.name;
-  const baseBranch = 'main'; // TODO: Make this configurable
+  const baseBranch = 'master'; // TODO: Make this configurable
 
   try {
     // Validate input
