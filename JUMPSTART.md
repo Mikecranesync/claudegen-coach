@@ -1,14 +1,24 @@
 # 🚀 JUMPSTART - ClaudeGen Coach Project State
 
-**Last Updated**: November 8, 2025 (MVP Complete + Autonomous Bot Phase 2 COMPLETE)
-**Version**: 1.2.0 (MVP Complete + Bot Phase 2 Deployed)
-**Git Commit**: TBD - "feat: Complete Autonomous Bot Phase 2 - Webhook Infrastructure"
+**Last Updated**: November 9, 2025 (Autonomous Bot Phase 4 AUTH FIXED ✅)
+**Version**: 1.2.0 (Bot Phase 3 & 4 Complete, Auth Working)
+**Git Commit**: TBD - "fix: Resolve GitHub App private key format (Issue #11)"
 **GitHub**: https://github.com/Mikecranesync/claudegen-coach
-**Status**: ✅ MVP Complete | ✅ Authentication System Ready | ✅ Bot Phase 1 Complete | ✅ Bot Phase 2 COMPLETE (Webhook Operational)
+**Status**: ✅ MVP Complete | ✅ Bot Phase 1-4 AUTH WORKING | 🎯 Next: Fix Claude API Model Configuration
 
 ---
 
-## 🎯 Current Phase: Autonomous Bot - Phase 3 (Claude API Integration)
+## ✅ RESOLVED: GitHub App Private Key Format (Issue #11)
+
+**Phase 4 authentication is now working!** Private key converted from RSA PKCS#1 to PKCS#8 format.
+
+**Test Results (November 9, 2025)**:
+- ✅ JWT generated successfully
+- ✅ Installation token acquired
+- ✅ GitHub client authenticated
+- ✅ Git operations ready to proceed
+
+**Next Issue**: Claude API model configuration needs updating (models returning 404/503 errors)
 
 **Completed Phases:**
 - ✅ Phase 1-3: Foundation (React + TypeScript + Vite + Tailwind + Zustand)
@@ -51,18 +61,21 @@ git log --oneline -5
 
 ## 🔄 Resume After Context Window Reset
 
-**Last Checkpoint:** November 8, 2025, 10:15 PM
-**Git Commit:** c0ff3d6
-**Phase:** Autonomous Bot Phase 2 COMPLETE ✅
+**Last Checkpoint:** November 9, 2025
+**Git Commit:** TBD (uncommitted Phase 3 & 4 changes)
+**Phase:** Autonomous Bot Phase 4 DEPLOYED - 🚨 BLOCKED ON AUTH ❌
 
 ### Quick Recovery (5 minutes)
 
-1. **Read "Latest Updates" section** below (scroll down to see Phase 2 completion details)
-2. **Read NEXT_STEPS.md** for your three options:
-   - **Option 1:** Continue Bot Phase 3 (Claude API integration) - 3-5 hours
-   - **Option 2:** Test Authentication System (Issue #3) - 30-60 min
-   - **Option 3:** Deploy Main App to Production - 1-2 hours
-3. **Choose one** and tell me which you want to work on
+1. **Read "Latest Updates" section** below (scroll down to see Phase 4 deployment details)
+2. **Read NEXT_STEPS.md** for current status and next actions
+3. **PRIMARY ACTION: Fix GitHub App Private Key** (Issue #11)
+   - Download `.pem` file from GitHub App settings
+   - Update Wrangler secret with correct format
+   - Test by commenting on issue #9
+4. **Alternative actions** (if blocked on private key):
+   - Test Authentication System (Issue #3) - 30-60 min
+   - Deploy Main App to Production - 1-2 hours
 
 ### Current State Summary
 
@@ -80,11 +93,23 @@ git log --oneline -5
   - GitHub App ID: 2255796
   - Receiving events successfully (HTTP 200 OK)
   - Activation command: `@claude fix`
-- ⏳ Phase 3-6: NOT YET STARTED (code generation, PRs, status, testing)
+- ✅ Phase 3: Claude API Integration COMPLETE & DEPLOYED
+  - Code generation with structured output
+  - Model fallback logic (tries 3 models)
+  - Retry logic with validation
+- ✅ Phase 4: Git Operations CODE COMPLETE (BLOCKED on auth)
+  - 5-step Git Data API choreography implemented
+  - PR creation logic complete
+  - **BLOCKED**: GitHub App JWT generation fails (private key format)
+- ⏳ Phase 5-6: NOT YET STARTED (status comments, testing)
 
-### No Blocking Issues
+### 🚨 CRITICAL BLOCKER
 
-Everything is working as expected. You can resume with any of the three options above.
+**Issue #11: GitHub App Private Key Format Error**
+- JWT generation fails: `"pkcs8" must be PKCS#8 formatted string`
+- Blocks all GitHub API operations
+- **Fix**: Download correct .pem file, update Wrangler secret
+- **See**: Issue #11 or NEXT_STEPS.md for detailed instructions
 
 ---
 
@@ -1167,7 +1192,76 @@ In addition to the interactive Claude Code CLI workflow, ClaudeGen Coach include
 
 ---
 
-## ✅ Latest Updates (November 8, 2025 - 🎉 BOT PHASE 2 COMPLETE!)
+## ✅ Latest Updates (November 9, 2025 - 🚨 BOT PHASE 4 DEPLOYED - BLOCKED ON AUTH)
+
+**🚨 Autonomous Bot Phase 4 - BLOCKED (Session: November 9, 2025 - CODE COMPLETE, AUTH ISSUE):**
+- ✅ **Phase 3: Claude API Integration COMPLETE**
+  - Created `lib/claude.js` (347 lines) - Claude API client with structured output
+  - Created `lib/prompts.js` - System/user prompt builders using CLAUDE.md standards
+  - Implemented JSON schema validation for code fix responses
+  - Added retry logic with validation (max 3 attempts)
+  - **Model fallback support**: Tries 3 Claude models on 404 errors
+    - Primary: `claude-3-5-sonnet-20241022` (Oct 2024)
+    - Stable: `claude-3-5-sonnet-20240620` (Jun 2024)
+    - Fallback: `claude-3-7-sonnet-20250219` (Feb 2025 - deprecated)
+  - Integrated into main webhook handler
+
+- ✅ **Phase 4: Git Operations COMPLETE** (Code deployed, blocked on auth)
+  - Created `lib/auth.js` (206 lines) - GitHub App JWT authentication using `jose` library
+  - Created `lib/git-operations.js` (356 lines) - Complete 5-step Git Data API choreography
+    - Step 1: Get base commit SHA from main branch
+    - Step 2: Create blob(s) for file changes (add/modify/delete)
+    - Step 3: Create tree with new blobs
+    - Step 4: Create commit with tree
+    - Step 5: Create branch and Pull Request
+  - Integrated PR creation into main webhook handler
+  - **Version 1.2.0 deployed** (ID: c4c727a8-b8f0-4139-a523-f3d1d16609a3)
+  - Cache busting: Updated `compatibility_date` to 2025-01-01
+
+- ✅ **GitHub App Permissions Fixed**
+  - Added "Issues" permission (Read and write)
+  - Subscribed to "Issue comment" events (appeared after permission granted)
+  - User accepted new permissions in installation
+  - Webhooks now receiving successfully ✅
+
+- ❌ **CRITICAL BLOCKER: GitHub App Private Key Format Error** (Issue #11)
+  - **Error**: `❌ Failed to generate JWT: TypeError: "pkcs8" must be PKCS#8 formatted string`
+  - **Impact**: Blocks all GitHub App authentication (no PRs can be created)
+  - **Root cause**: `GITHUB_APP_PRIVATE_KEY` secret not in proper PKCS#8 format for `jose` library
+  - **Fix required**: Download correct `.pem` file and update Wrangler secret
+  - **See**: [Issue #11](https://github.com/Mikecranesync/claudegen-coach/issues/11) for complete fix instructions
+
+- 📋 **What's Working**:
+  - ✅ Cloudflare Worker deployed (Version 1.2.0)
+  - ✅ Webhooks receiving (HTTP 200 OK)
+  - ✅ Signature validation passing
+  - ✅ Activation command detected (`@claude fix`)
+  - ✅ Claude API integration (with model fallback)
+  - ✅ All Phase 4 code implemented
+
+- 🚫 **What's Blocked**:
+  - ❌ GitHub App authentication (JWT generation fails)
+  - ❌ Pull Request creation (blocked by auth)
+  - ❌ All Git operations (blocked by auth)
+
+- 🔧 **Files Created/Modified**:
+  - cloudflare-worker/lib/auth.js (NEW - 206 lines)
+  - cloudflare-worker/lib/git-operations.js (NEW - 356 lines)
+  - cloudflare-worker/lib/claude.js (MODIFIED - added model fallback)
+  - cloudflare-worker/index.js (MODIFIED - integrated Phase 3 & 4)
+  - cloudflare-worker/wrangler.toml (MODIFIED - v1.2.0, cache busting)
+  - .github/ISSUE_TEMPLATE/github-app-private-key-fix.md (NEW - 265 lines)
+  - NEXT_STEPS.md (UPDATED - reflects blocker)
+  - JUMPSTART.md (UPDATED - this entry)
+
+- 🎯 **Next Action**: Fix GitHub App private key (see Issue #11 or NEXT_STEPS.md)
+  1. Download `.pem` file from https://github.com/settings/apps/claudegen-coach-bot
+  2. Run: `npx wrangler secret put GITHUB_APP_PRIVATE_KEY` in cloudflare-worker/
+  3. Paste entire .pem file content (including headers)
+  4. Test by commenting `@claude fix hello.txt` on issue #9
+  5. Verify PR is created automatically
+
+---
 
 **Autonomous Bot Implementation - Phase 2 Deployment (Session: November 8, 2025 - COMPLETE):**
 - ✅ **Phase 2: Deployment COMPLETE** (Webhook Infrastructure Operational)

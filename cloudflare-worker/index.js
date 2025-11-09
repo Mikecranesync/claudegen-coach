@@ -132,27 +132,122 @@ async function handleWebhook(request, env) {
   console.log(`Issue #${context.issue.number}: ${context.issue.title}`);
   console.log(`Comment by: ${context.comment.author}`);
 
-  // Step 7: Process the request (TODO: Phase 3)
-  // For now, just log that we would process it
-  console.log('TODO: Call processFixRequest() in Phase 3');
-  console.log(`Extracted command: ${comment}`);
+  // Step 7: Process the fix request (Phase 3)
+  try {
+    console.log('👀 Processing fix request...');
 
-  // For Phase 2, return success without actually processing
-  const duration = Date.now() - startTime;
-  console.log(`✅ Webhook processed in ${duration}ms`);
+    // Import required modules
+    const { getCachedClaudeMd, getRelevantFiles } = await import('./lib/github.js');
+    const { createClaudeClient, generateCodeFixWithRetry } = await import('./lib/claude.js');
+    const { createAuthenticatedGitHubClient } = await import('./lib/auth.js');
+    const { createPullRequest } = await import('./lib/git-operations.js');
 
-  return new Response(JSON.stringify({
-    status: 'received',
-    message: 'Webhook validated and parsed successfully (Phase 2)',
-    context: {
-      repository: context.repository.fullName,
-      issue: context.issue.number,
-      command_detected: true,
-    },
-  }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
+    // Initialize GitHub client with App authentication
+    const octokit = await createAuthenticatedGitHubClient(
+      env,
+      context.repository.owner,
+      context.repository.name
+    );
+    console.log('✅ GitHub client initialized with App authentication');
+
+    // Fetch CLAUDE.md coding standards
+    console.log('Fetching CLAUDE.md...');
+    const claudeMd = await getCachedClaudeMd(
+      env,
+      octokit,
+      context.repository.owner,
+      context.repository.name
+    );
+
+    if (!claudeMd) {
+      console.warn('⚠️ CLAUDE.md not found - proceeding without coding standards');
+    } else {
+      console.log(`✅ CLAUDE.md loaded (${claudeMd.length} chars)`);
+    }
+
+    // Get relevant files from user command
+    console.log('Fetching relevant files...');
+    const relevantFiles = await getRelevantFiles(context, octokit);
+    console.log(`✅ Found ${relevantFiles.length} relevant file(s)`);
+
+    // Initialize Claude client
+    if (!env.ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY not configured. Set with: wrangler secret put ANTHROPIC_API_KEY');
+    }
+
+    const claudeClient = createClaudeClient(env.ANTHROPIC_API_KEY);
+    console.log('✅ Claude client initialized');
+
+    // Generate code fix with retry logic
+    console.log('🧠 Calling Claude API...');
+    const codeFixResponse = await generateCodeFixWithRetry(
+      claudeClient,
+      context,
+      claudeMd,
+      relevantFiles,
+      3 // max 3 attempts
+    );
+
+    console.log('✅ Code fix generated successfully');
+    console.log(`  Branch: ${codeFixResponse.branch_name}`);
+    console.log(`  Commit: ${codeFixResponse.commit_title}`);
+    console.log(`  Files changed: ${codeFixResponse.file_changes.length}`);
+    if (codeFixResponse._meta) {
+      console.log(`  Model: ${codeFixResponse._meta.model}`);
+      console.log(`  Tokens: ${codeFixResponse._meta.tokens.input} in / ${codeFixResponse._meta.tokens.output} out`);
+      if (codeFixResponse._meta.attempts > 1) {
+        console.log(`  Attempts: ${codeFixResponse._meta.attempts}`);
+      }
+    }
+
+    // Phase 4: Create Pull Request
+    console.log('\n📝 Creating Pull Request...');
+    const prResult = await createPullRequest(octokit, context, codeFixResponse);
+
+    // Return success
+    const duration = Date.now() - startTime;
+    console.log(`\n✅ Phase 4 completed successfully in ${duration}ms`);
+
+    return new Response(JSON.stringify({
+      status: 'success',
+      phase: 'phase-4-complete',
+      message: `Pull request created successfully: #${prResult.pr_number}`,
+      context: {
+        repository: context.repository.fullName,
+        issue: context.issue.number,
+        pull_request: {
+          number: prResult.pr_number,
+          url: prResult.pr_url,
+          branch: prResult.branch_name,
+          commit_sha: prResult.commit_sha,
+        },
+        commit_title: codeFixResponse.commit_title,
+        files_changed: codeFixResponse.file_changes.length,
+        duration_ms: duration,
+      },
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+  } catch (error) {
+    console.error('❌ Processing failed:', error);
+    console.error('Stack trace:', error.stack);
+
+    // TODO Phase 5: Post error comment to issue
+    console.log('\n📋 TODO Phase 5: Post error comment to GitHub issue');
+
+    const duration = Date.now() - startTime;
+    return new Response(JSON.stringify({
+      status: 'error',
+      phase: 'phase-4',
+      message: error.message,
+      duration_ms: duration,
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 }
 
 /**
