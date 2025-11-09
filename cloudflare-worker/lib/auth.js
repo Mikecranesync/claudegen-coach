@@ -24,7 +24,7 @@ let tokenCache = null;
  * @param {string} privateKey - Private key in PEM format
  * @returns {Promise<string>} - Signed JWT token
  */
-async function generateJWT(appId, privateKey) {
+export async function generateJWT(appId, privateKey) {
   try {
     console.log('🔐 Generating JWT for GitHub App authentication...');
 

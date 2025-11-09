@@ -1,0 +1,68 @@
+name: Test Cloudflare Worker
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'cloudflare-worker/**'
+      - '.github/workflows/test-worker.yml'
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'cloudflare-worker/**'
+      - '.github/workflows/test-worker.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Run Worker Tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'cloudflare-worker/package-lock.json'
+
+      - name: Install dependencies
+        run: |
+          cd cloudflare-worker
+          npm ci
+
+      - name: Run unit tests
+        run: |
+          cd cloudflare-worker
+          npm test
+
+      - name: Run tests with coverage
+        run: |
+          cd cloudflare-worker
+          npm run test:coverage
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./cloudflare-worker/coverage/lcov.info
+          flags: worker
+          name: worker-coverage
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Check coverage thresholds
+        run: |
+          cd cloudflare-worker
+          npm run test:coverage -- --run
+        continue-on-error: true
+
+      - name: Comment coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          lcov-file: ./cloudflare-worker/coverage/lcov.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true

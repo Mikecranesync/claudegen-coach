@@ -1,0 +1,89 @@
+name: Test Main App
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vitest.config.ts'
+      - '.github/workflows/test-app.yml'
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vitest.config.ts'
+      - '.github/workflows/test-app.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Run App Tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm test
+        if: false  # Disabled until tests are written in Phase 4+
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+        if: false  # Disabled until tests are written in Phase 4+
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        if: false  # Disabled until tests are written
+        with:
+          files: ./coverage/lcov.info
+          flags: app
+          name: app-coverage
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Check coverage thresholds
+        run: npm run test:coverage -- --run
+        if: false  # Disabled until tests are written
+        continue-on-error: true
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build App
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Check build artifacts
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "Error: dist directory not found"
+            exit 1
+          fi
+          echo "Build successful, dist directory created"
