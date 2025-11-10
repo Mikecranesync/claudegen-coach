@@ -1,0 +1,3 @@
+This is a test file for the autonomous bot.
+
+TODO: Add a proper greeting message here.
